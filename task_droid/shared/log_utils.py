@@ -41,7 +41,7 @@ def log_message(
     color: str = "default"
 ):
     """
-    A standardized logging function for the Chameleon agent.
+    A standardized logging function for the TaskDroid agent.
 
     Args:
         level (str): The level of the message (e.g., "INFO", "ERROR", "SUCCESS").

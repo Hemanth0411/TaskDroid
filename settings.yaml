@@ -1,12 +1,40 @@
-llm:
-  provider: openai
-  api_key: ""
-  model: "gpt-4"
+# Configuration for the TaskDroid Agent
 
+# VLM (Vision Language Model) settings
+vlm_provider: "Gemini"  # Supported: "OpenAI", "Gemini", "Qwen"
+temperature: 0.0
+max_tokens: 1024
+
+# API Keys and Model Names
+# It's recommended to set API keys as environment variables for security.
+# Example ENV VARS: GEMINI_API_KEY, OPENAI_API_KEY, DASHSCOPE_API_KEY
+gemini:
+  api_key: "your_gemini_key_here"
+  model_name: "gemini-1.5-flash"
+
+openai:
+  api_key: "sk-your_openai_key_here"
+  api_base: "https://api.openai.com/v1/chat/completions"
+  model_name: "gpt-4o"
+  
+qwen:
+    api_key: "your_dashscope_key_here"
+    model_name: "qwen-vl-max"
+
+# Agent operational settings
+agent:
+  max_task_rounds: 20
+  max_explore_rounds: 50
+  request_interval_sec: 3
+  app_load_delay_sec: 5
+  documentation_refinement: true
+  
+# Device-specific settings
 device:
-  adb_path: "adb"
-  default_timeout: 30
+  screenshot_dir: "/sdcard/task_droid_temp"
+  xml_dir: "/sdcard/task_droid_temp"
+  min_element_dist: 20 # Minimum pixel distance to consider elements distinct
 
-logging:
-  level: INFO
-  file: "chameleon.log"
+# UI Labeling settings
+ui_labeling:
+  dark_mode: false
