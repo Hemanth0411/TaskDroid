@@ -7,4 +7,5 @@ class UIElement:
     uid: str
     bbox: Tuple[Tuple[int, int], Tuple[int, int]]
     attributes: str
+    text: str = ""
     children: list = field(default_factory=list)

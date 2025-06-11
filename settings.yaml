@@ -9,7 +9,7 @@ max_tokens: 1024
 # It's recommended to set API keys as environment variables for security.
 # Example ENV VARS: GEMINI_API_KEY, OPENAI_API_KEY, DASHSCOPE_API_KEY
 gemini:
-  api_key: "your_gemini_key_here"
+  api_key: "AIzaSyAX5wUhomG8Ew7z5DWrHgauF-uqzTtIKoQ"
   model_name: "gemini-1.5-flash"
 
 openai:

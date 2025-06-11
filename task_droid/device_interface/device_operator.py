@@ -1,9 +1,3 @@
-"""
-Device operator for interacting with Android devices
-"""
-class DeviceOperator:
-    def __init__(self):
-        pass
 import os
 import subprocess
 import shlex
@@ -23,12 +17,13 @@ class DeviceOperator:
         if not device_id:
             raise ValueError("Device ID cannot be empty.")
         self.device_id = device_id
-        self.screenshot_dir = settings.get_setting("device.screenshot_dir", "/sdcard/task_droid_temp")
-        self.xml_dir = settings.get_setting("device.xml_dir", "/sdcard/task_droid_temp")
+        # Ensure device paths use forward slashes, which is safer for adb shell
+        self.screenshot_dir_device = settings.get_setting("device.screenshot_dir", "/sdcard/task_droid_temp").replace('\\', '/')
+        self.xml_dir_device = settings.get_setting("device.xml_dir", "/sdcard/task_droid_temp").replace('\\', '/')
         
         log_message("INFO", f"Initializing operator for device: {self.device_id}", component="DeviceOperator")
-        self._execute_command(f"shell mkdir -p {self.screenshot_dir}")
-        self._execute_command(f"shell mkdir -p {self.xml_dir}")
+        self._execute_command(f"shell mkdir -p {self.screenshot_dir_device}")
+        self._execute_command(f"shell mkdir -p {self.xml_dir_device}")
         
         self.width, self.height = self._get_screen_resolution()
         if self.width == 0 or self.height == 0:
@@ -47,7 +42,7 @@ class DeviceOperator:
         log_message("ACTION", f"Executing: {log_cmd}", component="DeviceOperator", color="yellow")
         
         try:
-            result = subprocess.run(full_cmd_list, capture_output=True, text=True, check=False)
+            result = subprocess.run(full_cmd_list, capture_output=True, text=True, check=False, encoding='utf-8', errors='ignore')
             if result.returncode != 0:
                 error_output = result.stderr.strip()
                 log_message("WARNING", f"Command failed. Stderr: {error_output}", component="DeviceOperator", color="yellow")
@@ -90,13 +85,14 @@ class DeviceOperator:
     def capture_screen(self, filename_prefix: str, local_save_dir: str) -> str:
         """Takes a screenshot and pulls it to the local machine."""
         os.makedirs(local_save_dir, exist_ok=True)
-        device_path = f"{self.screenshot_dir}/{filename_prefix}.png"
+        device_path = f"{self.screenshot_dir_device}/{filename_prefix}.png"
         local_path = os.path.join(local_save_dir, f"{filename_prefix}.png")
         
         cap_ok, _ = self._execute_command(f"shell screencap -p {device_path}")
         if not cap_ok: return "ERROR"
         
-        pull_ok, _ = self._execute_command(f"pull {device_path} {local_path}")
+        # Add quotes around paths to handle spaces
+        pull_ok, _ = self._execute_command(f'pull "{device_path}" "{local_path}"')
         if not pull_ok: return "ERROR"
         
         return local_path
@@ -104,13 +100,14 @@ class DeviceOperator:
     def get_ui_dump(self, filename_prefix: str, local_save_dir: str) -> str:
         """Dumps the UI hierarchy to XML and pulls it."""
         os.makedirs(local_save_dir, exist_ok=True)
-        device_path = f"{self.xml_dir}/{filename_prefix}.xml"
+        device_path = f"{self.xml_dir_device}/{filename_prefix}.xml"
         local_path = os.path.join(local_save_dir, f"{filename_prefix}.xml")
         
         dump_ok, _ = self._execute_command(f"shell uiautomator dump {device_path}")
         if not dump_ok: return "ERROR"
 
-        pull_ok, _ = self._execute_command(f"pull {device_path} {local_path}")
+        # Add quotes around paths to handle spaces
+        pull_ok, _ = self._execute_command(f'pull "{device_path}" "{local_path}"')
         if not pull_ok: return "ERROR"
 
         return local_path
@@ -155,7 +152,7 @@ class DeviceOperator:
     def delete_multiple(self, count: int):
         for _ in range(count):
             self.delete()
-            time.sleep(0.05) # Small delay to ensure command registers
+            time.sleep(0.05)
     def app_switch(self): self.press_key(187)
 
     # --- System UI ---
